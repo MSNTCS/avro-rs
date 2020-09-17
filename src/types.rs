@@ -28,6 +28,8 @@ pub enum Value {
     Boolean(bool),
     /// A `int` Avro value.
     Int(i32),
+    /// A unsigned Integer.
+    U(u32),
     /// A `long` Avro value.
     Long(i64),
     /// A `float` Avro value.
@@ -112,6 +114,7 @@ macro_rules! to_value(
 
 to_value!(bool, Value::Boolean);
 to_value!(i32, Value::Int);
+to_value!(u32, Value::U);
 to_value!(i64, Value::Long);
 to_value!(f32, Value::Float);
 to_value!(f64, Value::Double);
@@ -257,6 +260,7 @@ impl std::convert::TryFrom<Value> for JsonValue {
             Value::Boolean(b) => Ok(Self::Bool(b)),
             Value::Int(i) => Ok(Self::Number(i.into())),
             Value::Long(l) => Ok(Self::Number(l.into())),
+            Value::U(u) => Ok(Self::Number(u.into())),
             Value::Float(f) => Number::from_f64(f.into())
                 .map(Self::Number)
                 .ok_or_else(|| Error::ConvertF64ToJson(f.into())),
@@ -383,6 +387,7 @@ impl Value {
             Schema::Null => self.resolve_null(),
             Schema::Boolean => self.resolve_boolean(),
             Schema::Int => self.resolve_int(),
+            Schema::U => self.resolve_u(),
             Schema::Long => self.resolve_long(),
             Schema::Float => self.resolve_float(),
             Schema::Double => self.resolve_double(),
@@ -547,6 +552,13 @@ impl Value {
             Value::Long(n) => Ok(Value::Long(n)),
             other => Err(Error::GetLong(other.into())),
         }
+    }
+
+    fn resolve_u(self) -> Result <Self,Error> {
+        match self {
+            Value::U(n)=> Ok(Value::U(u32::from(n))),
+            other => Err(Error::GetLong(other.into())),
+    }
     }
 
     fn resolve_float(self) -> Result<Self, Error> {

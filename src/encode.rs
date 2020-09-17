@@ -4,6 +4,7 @@ use crate::{
     util::{zig_i32, zig_i64},
 };
 use std::convert::TryInto;
+use crate::util::zig_u64;
 
 /// Encode a `Value` into avro format.
 ///
@@ -28,6 +29,10 @@ fn encode_int(i: i32, buffer: &mut Vec<u8>) {
     zig_i32(i, buffer)
 }
 
+fn encode_u(i: u32, buffer: &mut Vec<u8>) {
+    zig_u64(i as u64, buffer)
+}
+
 /// Encode a `Value` into avro format.
 ///
 /// **NOTE** This will not perform schema validation. The value is assumed to
@@ -38,7 +43,8 @@ pub fn encode_ref(value: &Value, schema: &Schema, buffer: &mut Vec<u8>) {
         Value::Null => (),
         Value::Boolean(b) => buffer.push(if *b { 1u8 } else { 0u8 }),
         // Pattern | Pattern here to signify that these _must_ have the same encoding.
-        Value::Int(i) | Value::Date(i) | Value::TimeMillis(i) => encode_int(*i, buffer),
+        Value::Int(i) | Value::Date(i) | Value::TimeMillis(i)  => encode_int(*i, buffer),
+        Value::U(i) => encode_u(*i, buffer),
         Value::Long(i)
         | Value::TimestampMillis(i)
         | Value::TimestampMicros(i)

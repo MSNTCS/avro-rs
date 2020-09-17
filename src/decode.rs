@@ -8,6 +8,7 @@ use crate::{
 };
 use std::{collections::HashMap, convert::TryFrom, io::Read, str::FromStr};
 use uuid::Uuid;
+use crate::util::zag_u32;
 
 #[inline]
 fn decode_long<R: Read>(reader: &mut R) -> AvroResult<Value> {
@@ -17,6 +18,11 @@ fn decode_long<R: Read>(reader: &mut R) -> AvroResult<Value> {
 #[inline]
 fn decode_int<R: Read>(reader: &mut R) -> AvroResult<Value> {
     zag_i32(reader).map(Value::Int)
+}
+
+#[inline]
+fn decode_u<R: Read>(reader: &mut R) -> AvroResult<Value> {
+    zag_u32(reader).map(Value::U)
 }
 
 #[inline]
@@ -79,6 +85,7 @@ pub fn decode<R: Read>(schema: &Schema, reader: &mut R) -> AvroResult<Value> {
             .map_err(Error::ConvertStrToUuid)?,
         )),
         Schema::Int => decode_int(reader),
+        Schema::U=> decode_u(reader),
         Schema::Date => zag_i32(reader).map(Value::Date),
         Schema::TimeMillis => zag_i32(reader).map(Value::TimeMillis),
         Schema::Long => decode_long(reader),

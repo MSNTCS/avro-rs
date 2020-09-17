@@ -41,6 +41,10 @@ pub fn zig_i64(n: i64, buffer: &mut Vec<u8>) {
     encode_variable(((n << 1) ^ (n >> 63)) as u64, buffer)
 }
 
+pub fn zig_u64(n: u64, buffer: &mut Vec<u8>) {
+    encode_variable(((n << 1) ^ (n >> 63)) as u64, buffer)
+}
+
 pub fn zag_i32<R: Read>(reader: &mut R) -> AvroResult<i32> {
     let i = zag_i64(reader)?;
     i32::try_from(i).map_err(|e| Error::ZagI32(e, i))
@@ -53,6 +57,20 @@ pub fn zag_i64<R: Read>(reader: &mut R) -> AvroResult<i64> {
     } else {
         !(z >> 1) as i64
     })
+}
+
+pub fn zag_u64<R: Read>(reader: &mut R) -> AvroResult<u64> {
+    let z = decode_variable(reader)?;
+    Ok(if z & 0x1 == 0 {
+        (z >> 1) as u64
+    } else {
+        !(z >> 1) as u64
+    })
+}
+
+pub fn zag_u32<R: Read>(reader: &mut R) -> AvroResult<u32> {
+    let i = zag_u64(reader)?;
+    u32::try_from(i).map_err(|e| Error::ZagU32(e, i))
 }
 
 fn encode_variable(mut z: u64, buffer: &mut Vec<u8>) {

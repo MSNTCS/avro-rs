@@ -316,6 +316,9 @@ pub enum Error {
     #[error("Decoded integer out of range for i32: {1}")]
     ZagI32(#[source] std::num::TryFromIntError, i64),
 
+    #[error("Decoded integer out of range for u32: {1}")]
+    ZagU32(#[source] std::num::TryFromIntError, u64),
+
     #[error("unable to read block")]
     ReadBlock,
 

@@ -42,6 +42,7 @@ pub enum Schema {
     Boolean,
     /// An `int` Avro schema.
     Int,
+    U,
     /// A `long` Avro schema.
     Long,
     /// A `float` Avro schema.
@@ -126,6 +127,7 @@ impl SchemaKind {
             SchemaKind::Null
             | SchemaKind::Boolean
             | SchemaKind::Int
+            | SchemaKind::U
             | SchemaKind::Long
             | SchemaKind::Double
             | SchemaKind::Float
@@ -144,6 +146,7 @@ impl<'a> From<&'a types::Value> for SchemaKind {
             Value::Boolean(_) => Self::Boolean,
             Value::Int(_) => Self::Int,
             Value::Long(_) => Self::Long,
+            Value::U(_) => Self::U,
             Value::Float(_) => Self::Float,
             Value::Double(_) => Self::Double,
             Value::Bytes(_) => Self::Bytes,
@@ -665,6 +668,7 @@ impl Serialize for Schema {
             Schema::Null => serializer.serialize_str("null"),
             Schema::Boolean => serializer.serialize_str("boolean"),
             Schema::Int => serializer.serialize_str("int"),
+            Schema::U => serializer.serialize_str("uint"),
             Schema::Long => serializer.serialize_str("long"),
             Schema::Float => serializer.serialize_str("float"),
             Schema::Double => serializer.serialize_str("double"),
